@@ -35,7 +35,7 @@ UNIFI_SPREADSHEET_SPREADSHEET_ID = '1FOAeJrO_NBspwAZGf4_kRTnzh0dXCIcXzhBcDQSHoew
 
 # URL where the current version of this script can be found 
 #   used for auto-updating the script as changes are made
-REMOTE_SCRIPT_URL = "https://gist.githubusercontent.com/serrc-techops/be460e035045b4406dcbd21159565370/raw/96c7c78ed1d5e8d5d74c5c7ebbc20a138304394d/rclone-backup.py"
+REMOTE_SCRIPT_URL = "https://raw.githubusercontent.com/serrc-techops/rclone-backup/refs/heads/main/rclone-backup.py"
 
 
 def get_backup_source(backup_type):
