@@ -203,8 +203,13 @@ def get_file_hash(file_path):
 
 def get_remote_script_content(url):
     """Download the content of the remote script."""
+    # Adding headers to disable caching
+    headers = {
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache"
+    }
     try:
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
         return response.text
     except requests.RequestException as e:
