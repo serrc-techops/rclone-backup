@@ -373,4 +373,4 @@ if __name__ == "__main__":
         # Log success/failure to Google Sheet
         append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id)
 
-        sys.exit(0)
+    sys.exit(0)
