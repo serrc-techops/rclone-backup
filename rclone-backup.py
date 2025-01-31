@@ -186,9 +186,10 @@ def append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id):
         log(f"Successfully logged backup status and log content to Google Sheet: {status}")
     except HttpError as error:
         log(f"[ERROR] Failed to update Google Sheet: {error}")
-        return False
+        sys.exit(1)
     
-    return True
+    if status == "FAILURE":
+        sys.exit(1)
 
 
 def get_file_hash(file_path):
@@ -316,26 +317,24 @@ if __name__ == "__main__":
         # Check if rclone remote exists
         remotes = subprocess.run(["rclone", "listremotes"], capture_output=True, text=True).stdout
         if f"{RCLONE_REMOTE_NAME}:" not in remotes:
-            log(f"[ERROR] Rclone remote '{RCLONE_REMOTE_NAME}' does not exist.")
+            log(f"[ERROR] Rclone remote '{RCLONE_REMOTE_NAME}' does not exist. Exiting.")
             status = "FAILURE"
-            if not append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id):
-                sys.exit(1)
+            append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id)
 
         # Check backup source
         source = get_backup_source(backup_type)
         if not source:
             log("[ERROR] No backup source specified. Exiting.")
             status = "FAILURE"
-            if not append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id):
-                sys.exit(1)
+            append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id)
         else:
             if os.path.isdir(source):
                 log(f"[INFO] Backup directory found: {source}")
             else:
                 log("[ERROR] Backup source does not exist. Exiting.")
                 status = "FAILURE"
-                if not append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id):
-                    sys.exit(1)
+                append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id)
+                sys.exit(1)
 
         # Compress source directory
         try:
@@ -343,8 +342,7 @@ if __name__ == "__main__":
         except Exception as e:
             log(f"[Error] Compressing source failed: {e}")
             status = "FAILURE"
-            if not append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id):
-                sys.exit(1)
+            append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id)
         else:
             # Copy backup to destination
             try:
@@ -353,8 +351,7 @@ if __name__ == "__main__":
             except Exception as e:
                 log(f"[ERROR] Copying to destination failed: {e}")
                 status = "FAILURE"
-                if not append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id):
-                    sys.exit(1)
+                append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id)
             finally:
                 os.remove(compressed_file)
 
@@ -375,3 +372,5 @@ if __name__ == "__main__":
 
         # Log success/failure to Google Sheet
         append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id)
+
+        sys.exit(0)
