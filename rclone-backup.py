@@ -11,7 +11,7 @@ import sys
 import json
 from datetime import datetime
 
-VERSION = '1.02'
+VERSION = '1.03'
 
 # Number of compressed backups to retain
 BACKUP_KEEP_COUNT = 5
