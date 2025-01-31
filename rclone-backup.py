@@ -11,7 +11,7 @@ import sys
 import json
 from datetime import datetime
 
-VERSION = '1.01'
+VERSION = '1.02'
 
 # Number of compressed backups to retain
 BACKUP_KEEP_COUNT = 5
@@ -319,7 +319,7 @@ if __name__ == "__main__":
             log(f"[ERROR] Rclone remote '{RCLONE_REMOTE_NAME}' does not exist.")
             status = "FAILURE"
             if not append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id):
-                break
+                sys.exit(1)
 
         # Check backup source
         source = get_backup_source(backup_type)
@@ -327,7 +327,7 @@ if __name__ == "__main__":
             log("[ERROR] No backup source specified. Exiting.")
             status = "FAILURE"
             if not append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id):
-                break
+                sys.exit(1)
         else:
             if os.path.isdir(source):
                 log(f"[INFO] Backup directory found: {source}")
@@ -335,7 +335,7 @@ if __name__ == "__main__":
                 log("[ERROR] Backup source does not exist. Exiting.")
                 status = "FAILURE"
                 if not append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id):
-                    break
+                    sys.exit(1)
 
         # Compress source directory
         try:
@@ -344,7 +344,7 @@ if __name__ == "__main__":
             log(f"[Error] Compressing source failed: {e}")
             status = "FAILURE"
             if not append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id):
-                break
+                sys.exit(1)
         else:
             # Copy backup to destination
             try:
@@ -354,7 +354,7 @@ if __name__ == "__main__":
                 log(f"[ERROR] Copying to destination failed: {e}")
                 status = "FAILURE"
                 if not append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id):
-                    break
+                    sys.exit(1)
             finally:
                 os.remove(compressed_file)
 
