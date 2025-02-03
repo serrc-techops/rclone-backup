@@ -58,7 +58,7 @@ def get_backup_source(backup_type):
         for path in unifi_autobackup_paths:
             if os.path.exists(path):
                 return path
-                break
+        return 'No autobackup path detected'
     else:
         return None
 
