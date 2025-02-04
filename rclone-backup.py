@@ -7,11 +7,11 @@ import subprocess
 import shutil
 import stat
 import sys
-# import time
+import time
 import json
 from datetime import datetime
 
-VERSION = '1.04'
+VERSION = '1.05'
 
 # Number of compressed backups to retain
 BACKUP_KEEP_COUNT = 5
@@ -48,17 +48,29 @@ def get_backup_source(backup_type):
     elif backup_type == "munkimanifests":
         return "/srv/www/munki/manifests"
     elif backup_type == "unifi":
+        
+        # Used to check for recent update
+        one_week_ago = time.time() - (7 * 24 * 60 * 60)
+
         # Multiple Unifi autobackup locations possible
         unifi_autobackup_paths = [
             "/var/lib/unifi/backup/autobackup",       # Software Controller
-            "/srv/unifi/data/backup/autobackup",      # UniFi Cloud Key Gen1/Gen2
+            "/data/unifi/data/backup/autobackup",     # UniFi Cloud Key Gen1/Gen2 - newer firmware
+            "/srv/unifi/data/backup/autobackup",      # UniFi Cloud Key Gen1/Gen2 - older firmware
             "/usr/lib/unifi/data/backup/autobackup",  # Alternative UniFi installation
             "/opt/unifi/data/backup/autobackup",      # Custom installations
         ]
         for path in unifi_autobackup_paths:
             if os.path.exists(path):
-                return path
-        return 'No autobackup path detected'
+                files = os.listdir(path)
+                for file in files:
+                    if file.endswith(".unf"):
+                        file_path = os.path.join(path, file)
+                        # Check if the file is no older than one week
+                        file_mod_time = os.path.getmtime(file_path)
+                        if file_mod_time >= one_week_ago:
+                            return path
+        return 'No autobackup path with recent backups detected'
     else:
         return None
 
