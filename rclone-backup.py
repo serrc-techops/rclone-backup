@@ -11,7 +11,7 @@ import time
 import json
 from datetime import datetime
 
-VERSION = '1.05'
+VERSION = '1.06'
 
 # Number of compressed backups to retain
 BACKUP_KEEP_COUNT = 5
@@ -60,17 +60,20 @@ def get_backup_source(backup_type):
             "/usr/lib/unifi/data/backup/autobackup",  # Alternative UniFi installation
             "/opt/unifi/data/backup/autobackup",      # Custom installations
         ]
-        for path in unifi_autobackup_paths:
-            if os.path.exists(path):
-                files = os.listdir(path)
-                for file in files:
-                    if file.endswith(".unf"):
-                        file_path = os.path.join(path, file)
-                        # Check if the file is no older than one week
-                        file_mod_time = os.path.getmtime(file_path)
-                        if file_mod_time >= one_week_ago:
-                            return path
-        return 'No autobackup path with recent backups detected'
+        try:
+            for path in unifi_autobackup_paths:
+                if os.path.exists(path):
+                    files = os.listdir(path)
+                    for file in files:
+                        if file.endswith(".unf"):
+                            file_path = os.path.join(path, file)
+                            # Check if the file is no older than one week
+                            file_mod_time = os.path.getmtime(file_path)
+                            if file_mod_time >= one_week_ago:
+                                return path
+            return f"[ERROR] No autobackup path with recent backups detected. Exiting."
+        except Exception as e:
+            return f"[ERROR] detecting autobackup failure: {e}"
     else:
         return None
 
@@ -342,6 +345,10 @@ if __name__ == "__main__":
         source = get_backup_source(backup_type)
         if not source:
             log("[ERROR] No backup source specified. Exiting.")
+            status = "FAILURE"
+            append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id)
+        elif source.startswith("[ERROR]"):
+            log(source)
             status = "FAILURE"
             append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id)
         else:
