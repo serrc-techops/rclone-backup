@@ -23,7 +23,7 @@ BACKUP_KEEP_COUNT = 5
 # Share a single local log file for all backup types
 LOG_FILE = "/var/log/rclone-backup.log"
 
-# Number of local /var/log files to retain
+# Number of local log files to retain
 MAX_LOG_ARCHIVES = 10
 
 # Name of pre-configured Rclone remote
