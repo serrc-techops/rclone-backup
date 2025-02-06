@@ -1,8 +1,12 @@
 #!/usr/bin/python3
 
+
+# Version 1.061 - Added random sleep up to 10 minutes to prevent multiple devices simultaneously writing to gsheet log and triggering gscript
+
+
 import hashlib
 import os
-# import random
+import random
 import subprocess
 import shutil
 import stat
@@ -11,14 +15,13 @@ import time
 import json
 from datetime import datetime
 
-VERSION = '1.06'
+VERSION = '1.061'
 
 # Number of compressed backups to retain
 BACKUP_KEEP_COUNT = 5
 
-# Share a single log file for all backup types
-#   TODO: individual logs
-log_file = f"/var/log/rclone-backup.log"
+# Share a single local log file for all backup types
+LOG_FILE = f"/var/log/rclone-backup.log"
 
 # Number of local /var/log files to retain
 MAX_LOG_ARCHIVES = 10
@@ -26,7 +29,7 @@ MAX_LOG_ARCHIVES = 10
 # Name of pre-configured Rclone remote
 RCLONE_REMOTE_NAME = 'googledrive'
 
-# IDs of the individual Google Sheets used for logging
+# IDs of the individual Google Sheets used for logging and monitoring
 DHCP_SPREADSHEET_ID = '1QWORlX7No7FN2woNCmrf4xmtI1cRNC3pxHpk7auXxuE'
 DNS_SPREADSHEET_ID = '1jmRT9r900HD-MVYCq-JYwl2p8aIcdsqrqivnomvMFG8'
 GORILLAMANIFESTS_SPREADSHEET_ID = '1y4wpZvrD9_f9t5NypY-JWjAWBjXGbsJ5fEB3pqelRo4'
@@ -87,34 +90,21 @@ def check_command(command):
 
 
 def rotate_logs():
-    """
-    Rotate logs sequentially.
-    Maintains up to MAX_LOG_ARCHIVES archived logs: log.1, log.2, ..., log.7
-    """
-    if os.path.exists(log_file):
-        # Remove the oldest log file if the maximum number of archives is reached
-        oldest_log = f"{log_file}.{MAX_LOG_ARCHIVES}"
-        if os.path.exists(oldest_log):
-            os.remove(oldest_log)
-
-        # Shift log files sequentially
+    """Rotate logs to maintain a fixed number of archives."""
+    if os.path.exists(LOG_FILE):
         for i in range(MAX_LOG_ARCHIVES - 1, 0, -1):
-            old_log = f"{log_file}.{i}"
-            new_log = f"{log_file}.{i + 1}"
+            old_log = f"{LOG_FILE}.{i}"
+            new_log = f"{LOG_FILE}.{i + 1}"
             if os.path.exists(old_log):
                 os.rename(old_log, new_log)
-
-        # Rename the current log to log.1
-        os.rename(log_file, f"{log_file}.1")
-
-    # Create a new empty log file
-    open(log_file, "w").close()
+        os.rename(LOG_FILE, f"{LOG_FILE}.1")
+    open(LOG_FILE, "w").close()
 
 
 def log(message):
     """Write a message to the log file and print to stout."""
     print(message + "\n")
-    with open(log_file, "a") as lf:
+    with open(LOG_FILE, "a") as lf:
         lf.write(message + "\n")
 
 
@@ -129,7 +119,7 @@ def compress_source(source):
 def rclone_copy(file_path, destination):
     """Copy a file to the destination using rclone."""
     log(f"[INFO] Copying {file_path} to {destination} using rclone")
-    subprocess.run(["rclone", "-v", "copy", file_path, destination, "--log-file", log_file], check=True, text=True)
+    subprocess.run(["rclone", "-v", "copy", file_path, destination, "--log-file", LOG_FILE], check=True, text=True)
 
 
 def rclone_list_files(destination, pattern):
@@ -141,7 +131,7 @@ def rclone_list_files(destination, pattern):
 def rclone_delete(file_path):
     """Delete a file from the destination using rclone."""
     log(f"[INFO] Deleting {file_path}")
-    subprocess.run(["rclone", "-v", "delete", file_path, "--log-file", log_file], check=True, text=True)
+    subprocess.run(["rclone", "-v", "delete", file_path, "--log-file", LOG_FILE], check=True, text=True)
 
 
 def append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id):
@@ -156,8 +146,8 @@ def append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id):
 
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    with open(log_file, 'r') as lf:
-        log_content = lf.read()
+    with open(LOG_FILE, 'r') as f:
+        log_content = f.read()
 
     try:
         # Check if the tab exists; if not, create it
@@ -274,10 +264,11 @@ if __name__ == "__main__":
     rotate_logs()
     log(f'[INFO] Version: {VERSION}')
 
-    # # Sleep for a random amount of time between 0 and 300 seconds
-    # random_sleep_time = random.uniform(0, 300)
-    # log(f"[INFO] Sleeping for {random_sleep_time:.2f} seconds...")
-    # time.sleep(random_sleep_time)
+    # Sleep for a random amount of time between 0 and 600 seconds (10 minutes)
+    # This is to prevent many devices writing to the gsheet log simultaneously
+    random_sleep_time = random.uniform(0, 600)
+    log(f"[INFO] Sleeping for {random_sleep_time:.2f} seconds...")
+    time.sleep(random_sleep_time)
 
     # Check that required software is installed
     # check_command("pip")
