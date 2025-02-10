@@ -108,7 +108,7 @@ def rotate_logs():
 
 def log(message):
     """Write a message to the log file and print to stout."""
-    print(message + "\n")
+    print(message)
     with open(LOG_FILE, "a") as lf:
         lf.write(message + "\n")
 
