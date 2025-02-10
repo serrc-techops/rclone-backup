@@ -210,6 +210,13 @@ def get_file_hash(file_path):
 
 def get_remote_script_content(url):
     """Download the content of the remote script."""
+
+    try:
+        import requests
+    except ImportError as e:
+        check_command("python3-requests")
+        import requests
+        
     # Adding headers to disable caching
     headers = {
         "Cache-Control": "no-cache",
@@ -298,11 +305,6 @@ if __name__ == "__main__":
         from googleapiclient.discovery import build
         from googleapiclient.errors import HttpError
         from google.oauth2 import service_account
-    try:
-        import requests
-    except ImportError as e:
-        check_command("python3-requests")
-        import requests
 
     # Load configuration from JSON file
     def load_config(config_file="/srv/rclone/config.json"):
