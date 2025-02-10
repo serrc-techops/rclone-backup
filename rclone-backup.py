@@ -1,8 +1,11 @@
 #!/usr/bin/python3
 
 
-# Version 1.062 - Added random sleep up to 20 minutes to prevent multiple devices simultaneously writing to gsheet log and triggering gscript
-#    Sleep can be skipped at execute by passing the "--nosleep" argument
+# Version 1.062 - Added random sleep up to 20 minutes to prevent multiple devices simultaneously writing to gsheet log
+
+# Arguments:
+#    --nosleep : skip sleep when script executed
+#    --noupdate : skip automaticly updating script contents
 
 
 import argparse
