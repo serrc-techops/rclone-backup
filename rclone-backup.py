@@ -264,9 +264,10 @@ if __name__ == "__main__":
     rotate_logs()
     log(f'[INFO] Version: {VERSION}')
 
-    # Sleep for a random amount of time between 0 and 600 seconds (10 minutes)
-    # This is to prevent many devices writing to the gsheet log simultaneously
-    random_sleep_time = random.uniform(0, 600)
+    # Sleep for a random amount of time between 0 and 1200 seconds (20 minutes)
+    # This is to prevent many devices writing to the gsheet log simultaneously 
+    #    and bogging down the gsheet auto-formatting
+    random_sleep_time = random.uniform(0, 1200)
     log(f"[INFO] Sleeping for {random_sleep_time:.2f} seconds...")
     time.sleep(random_sleep_time)
 
