@@ -259,7 +259,7 @@ def self_update_script():
         subprocess.run(["chown", "root:", CURRENT_SCRIPT_PATH], check=True)
 
         log("[INFO] Script updated. Re-executing...")
-        os.execv(sys.executable, [sys.executable, current_script_path] + sys.argv[1:])
+        os.execv(sys.executable, [sys.executable, CURRENT_SCRIPT_PATH] + sys.argv[1:])
         sys.exit(0)
 
 if __name__ == "__main__":
