@@ -2,7 +2,7 @@
 
 
 # Version 1.062 - Added random sleep up to 20 minutes to prevent multiple devices simultaneously writing to gsheet log and triggering gscript
-#                    Sleep can be skipped at execute by passing the "--nosleep" argument
+#    Sleep can be skipped at execute by passing the "--nosleep" argument
 
 
 import argparse
