@@ -209,14 +209,7 @@ def get_file_hash(file_path):
 
 
 def get_remote_script_content(url):
-    """Download the content of the remote script."""
-
-    try:
-        import requests
-    except ImportError as e:
-        check_command("python3-requests")
-        import requests
-        
+    """Download the content of the remote script."""        
     # Adding headers to disable caching
     headers = {
         "Cache-Control": "no-cache",
@@ -279,17 +272,12 @@ if __name__ == "__main__":
         action="store_true",
         help="Skip the sleep period when executing the script."
     )
+    parser.add_argument(
+        "--noupdate",
+        action="store_true",
+        help="Skip the auto-update of script."
+    )
     args = parser.parse_args()
-
-    self_update_script()
-
-    if not args.nosleep:
-        # Sleep for a random amount of time between 0 and 1200 seconds (20 minutes)
-        # This is to prevent many devices writing to the gsheet log simultaneously 
-        #    and bogging down the gsheet auto-formatting
-        random_sleep_time = random.uniform(0, 1200)
-        log(f"[INFO] Sleeping for {random_sleep_time:.2f} seconds...")
-        time.sleep(random_sleep_time)
 
     # Check that required software is installed
     # check_command("pip")
@@ -305,6 +293,22 @@ if __name__ == "__main__":
         from googleapiclient.discovery import build
         from googleapiclient.errors import HttpError
         from google.oauth2 import service_account
+    try:
+        import requests
+    except ImportError as e:
+        check_command("python3-requests")
+        import requests
+    
+    if not args.noupdate:
+        self_update_script()
+
+    if not args.nosleep:
+        # Sleep for a random amount of time between 0 and 1200 seconds (20 minutes)
+        # This is to prevent many devices writing to the gsheet log simultaneously 
+        #    and bogging down the gsheet auto-formatting
+        random_sleep_time = random.uniform(0, 1200)
+        log(f"[INFO] Sleeping for {random_sleep_time:.2f} seconds...")
+        time.sleep(random_sleep_time)
 
     # Load configuration from JSON file
     def load_config(config_file="/srv/rclone/config.json"):
