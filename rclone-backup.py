@@ -1,12 +1,13 @@
 #!/usr/bin/python3
 
+VERSION = '1.063'
 
 # Version 1.062 - Added random sleep up to 20 minutes to prevent multiple devices simultaneously writing to gsheet log
+# Version 1.063 - Added nosleep and noupdate arguments to assist in troubleshooting
 
 # Arguments:
 #    --nosleep : skip sleep when script executed
 #    --noupdate : skip automaticly updating script contents
-
 
 import argparse
 import hashlib
@@ -19,8 +20,6 @@ import sys
 import time
 import json
 from datetime import datetime
-
-VERSION = '1.062'
 
 # Number of compressed backups to retain
 BACKUP_KEEP_COUNT = 5
