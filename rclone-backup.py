@@ -1,9 +1,11 @@
 #!/usr/bin/python3
 
 
-# Version 1.061 - Added random sleep up to 10 minutes to prevent multiple devices simultaneously writing to gsheet log and triggering gscript
+# Version 1.062 - Added random sleep up to 20 minutes to prevent multiple devices simultaneously writing to gsheet log and triggering gscript
+#                    Sleep can be skipped at execute by passing the "--nosleep" argument
 
 
+import argparse
 import hashlib
 import os
 import random
@@ -254,7 +256,7 @@ def self_update_script():
         subprocess.run(["chown", "root:", CURRENT_SCRIPT_PATH], check=True)
 
         log("[INFO] Script updated. Re-executing...")
-        os.execv(sys.executable, [sys.executable, CURRENT_SCRIPT_PATH])
+        os.execv(sys.executable, [sys.executable, current_script_path] + sys.argv[1:])
         sys.exit(0)
 
 if __name__ == "__main__":
@@ -264,12 +266,23 @@ if __name__ == "__main__":
     rotate_logs()
     log(f'[INFO] Version: {VERSION}')
 
-    # Sleep for a random amount of time between 0 and 1200 seconds (20 minutes)
-    # This is to prevent many devices writing to the gsheet log simultaneously 
-    #    and bogging down the gsheet auto-formatting
-    random_sleep_time = random.uniform(0, 1200)
-    log(f"[INFO] Sleeping for {random_sleep_time:.2f} seconds...")
-    time.sleep(random_sleep_time)
+    parser = argparse.ArgumentParser(description="A script used to backup various config files via rclone.")
+    parser.add_argument(
+        "--nosleep",
+        action="store_true",
+        help="Skip the sleep period when executing the script."
+    )
+    args = parser.parse_args()
+
+    self_update_script()
+
+    if not args.nosleep:
+        # Sleep for a random amount of time between 0 and 1200 seconds (20 minutes)
+        # This is to prevent many devices writing to the gsheet log simultaneously 
+        #    and bogging down the gsheet auto-formatting
+        random_sleep_time = random.uniform(0, 1200)
+        log(f"[INFO] Sleeping for {random_sleep_time:.2f} seconds...")
+        time.sleep(random_sleep_time)
 
     # Check that required software is installed
     # check_command("pip")
@@ -290,8 +303,6 @@ if __name__ == "__main__":
     except ImportError as e:
         check_command("python3-requests")
         import requests
-
-    self_update_script()
 
     # Load configuration from JSON file
     def load_config(config_file="/srv/rclone/config.json"):
