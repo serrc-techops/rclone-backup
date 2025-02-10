@@ -15,7 +15,7 @@ import time
 import json
 from datetime import datetime
 
-VERSION = '1.061'
+VERSION = '1.062'
 
 # Number of compressed backups to retain
 BACKUP_KEEP_COUNT = 5
@@ -74,7 +74,7 @@ def get_backup_source(backup_type):
                             file_mod_time = os.path.getmtime(file_path)
                             if file_mod_time >= one_week_ago:
                                 return path
-            return f"[ERROR] No autobackup path with recent backups detected. Exiting."
+            return "[ERROR] No autobackup path with recent backups detected. Exiting."
         except Exception as e:
             return f"[ERROR] detecting autobackup failure: {e}"
     else:
