@@ -46,14 +46,15 @@ REMOTE_SCRIPT_URL = "https://raw.githubusercontent.com/serrc-techops/rclone-back
 
 
 def get_backup_source(backup_type):
+    """Return list of directories to backup depending on the backup type"""
     if backup_type == "dhcp":
-        return "/etc/dhcp"
+        return [ "/etc/dhcp" ]
     elif backup_type == "dns":
-        return "/etc/bind"
+        return [ "/etc/bind", "/var/cache/bind" ]
     elif backup_type == "gorillamanifests":
-        return "/srv/www/gorilla/manifests"
+        return [ "/srv/www/gorilla/manifests" ]
     elif backup_type == "munkimanifests":
-        return "/srv/www/munki/manifests"
+        return [ "/srv/www/munki/manifests" ]
     elif backup_type == "unifi":
         
         # Used to check for recent update
@@ -77,7 +78,7 @@ def get_backup_source(backup_type):
                             # Check if the file is no older than one week
                             file_mod_time = os.path.getmtime(file_path)
                             if file_mod_time >= one_week_ago:
-                                return path
+                                return [ path ]
             return "[ERROR] No autobackup path with recent backups detected. Exiting."
         except Exception as e:
             return f"[ERROR] detecting autobackup failure: {e}"
@@ -358,20 +359,22 @@ if __name__ == "__main__":
             log("[ERROR] No backup source specified. Exiting.")
             status = "FAILURE"
             append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id)
-        elif source.startswith("[ERROR]"):
+        elif not type(source) is list:
             log(source)
             status = "FAILURE"
             append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id)
         else:
-            if os.path.isdir(source):
-                log(f"[INFO] Backup directory found: {source}")
-            else:
-                log(f"[ERROR] Backup source '{source}' does not exist. Exiting.")
-                status = "FAILURE"
-                append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id)
-                sys.exit(1)
+            for s in source:
+                if os.path.isdir(source):
+                    log(f"[INFO] Backup directory found: {source}")
+                else:
+                    log(f"[ERROR] Backup source '{source}' does not exist. Exiting.")
+                    status = "FAILURE"
+                    append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id)
+                    sys.exit(1)
 
         # Compress source directory
+        source = " ".join(f'"{s}"' for s in source)
         try:
             compressed_file = compress_source(source)
         except Exception as e:
