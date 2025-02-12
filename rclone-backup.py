@@ -365,10 +365,10 @@ if __name__ == "__main__":
             append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id)
         else:
             for s in source:
-                if os.path.isdir(source):
-                    log(f"[INFO] Backup directory found: {source}")
+                if os.path.isdir(s):
+                    log(f"[INFO] Backup directory found: {s}")
                 else:
-                    log(f"[ERROR] Backup source '{source}' does not exist. Exiting.")
+                    log(f"[ERROR] Backup source '{s}' does not exist. Exiting.")
                     status = "FAILURE"
                     append_to_google_sheet(log_sheet_tab_name, status, spreadsheet_id)
                     sys.exit(1)
