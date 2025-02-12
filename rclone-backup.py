@@ -117,7 +117,7 @@ def compress_source(source):
     """Compress the source directory into a temporary file."""
     compressed_file = f"/tmp/{backup_name}.tar.gz"
     log(f"[INFO] Compressing {source} to {compressed_file}")
-    subprocess.run(["tar", "-czvf", compressed_file, source], check=True, text=True)
+    subprocess.run(["tar", "-czvf", compressed_file, *source], check=True, text=True)
     return compressed_file
 
 
@@ -374,7 +374,6 @@ if __name__ == "__main__":
                     sys.exit(1)
 
         # Compress source directory
-        source = " ".join(f'"{s}"' for s in source)
         try:
             compressed_file = compress_source(source)
         except Exception as e:
