@@ -79,7 +79,7 @@ def get_backup_source(backup_type):
                             file_mod_time = os.path.getmtime(file_path)
                             if file_mod_time >= one_week_ago:
                                 return [ path ]
-            return "[ERROR] No autobackup path with recent backups detected. Exiting."
+            return "[ERROR] No autobackup path with backups less than seven days old detected. Exiting."
         except Exception as e:
             return f"[ERROR] detecting autobackup failure: {e}"
     else:
