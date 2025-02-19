@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 
-VERSION = '1.063'
+VERSION = '1.064'
 
 # Version 1.062 - Added random sleep up to 20 minutes to prevent multiple devices simultaneously writing to gsheet log
 # Version 1.063 - Added nosleep and noupdate arguments to assist in troubleshooting
+# Version 1.064 - Added timestamp to logging, set log rotation time interval so new log wouldn't be created after script self-update
 
 # Arguments:
 #    --nosleep : skip sleep when script executed
@@ -29,6 +30,9 @@ LOG_FILE = "/var/log/rclone-backup.log"
 
 # Number of local log files to retain
 MAX_LOG_ARCHIVES = 10
+
+# Rotate logs if LOG_FILE more than 24 hours old
+LOG_ROTATE_INTERVAL = 24 * 60 * 60
 
 # Name of pre-configured Rclone remote
 RCLONE_REMOTE_NAME = 'googledrive'
@@ -95,22 +99,26 @@ def check_command(command):
 
 
 def rotate_logs():
-    """Rotate logs to maintain a fixed number of archives."""
+    """Rotate logs to maintain a fixed number of files."""
     if os.path.exists(LOG_FILE):
-        for i in range(MAX_LOG_ARCHIVES - 1, 0, -1):
-            old_log = f"{LOG_FILE}.{i}"
-            new_log = f"{LOG_FILE}.{i + 1}"
-            if os.path.exists(old_log):
-                os.rename(old_log, new_log)
-        os.rename(LOG_FILE, f"{LOG_FILE}.1")
-    open(LOG_FILE, "w").close()
+        file_age = time.time() - os.path.getmtime(LOG_FILE)
+        if file_age >= LOG_ROTATE_INTERVAL:
+            for i in range(MAX_LOG_ARCHIVES - 1, 0, -1):
+                old_log = f"{LOG_FILE}.{i}"
+                new_log = f"{LOG_FILE}.{i + 1}"
+                if os.path.exists(old_log):
+                    os.rename(old_log, new_log)
+            os.rename(LOG_FILE, f"{LOG_FILE}.1")
+        open(LOG_FILE, "w").close()
 
 
 def log(message):
-    """Write a message to the log file and print to stout."""
-    print(message)
+    """Write a message to the log file and print to stdout with a timestamp."""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_entry = f"{timestamp} - {message}"
+    print(log_entry)  # Print to stdout
     with open(LOG_FILE, "a") as lf:
-        lf.write(message + "\n")
+        lf.write(log_entry + "\n")  # Append to the log file
 
 
 def compress_source(source):
