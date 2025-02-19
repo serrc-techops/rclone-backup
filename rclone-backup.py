@@ -8,7 +8,7 @@ VERSION = '1.064'
 
 # Arguments:
 #    --nosleep : skip sleep when script executed
-#    --noupdate : skip automaticly updating script contents
+#    --noupdate : skip automatically updating script contents
 
 import argparse
 import hashlib
