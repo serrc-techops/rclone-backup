@@ -109,7 +109,7 @@ def rotate_logs():
                 if os.path.exists(old_log):
                     os.rename(old_log, new_log)
             os.rename(LOG_FILE, f"{LOG_FILE}.1")
-        open(LOG_FILE, "w").close()
+            open(LOG_FILE, "w").close()
 
 
 def log(message):
