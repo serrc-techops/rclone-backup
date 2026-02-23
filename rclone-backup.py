@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-VERSION = '1.066'
+VERSION = '1.0661'
 
 # Version 1.062 - Added random sleep up to 20 minutes to prevent multiple devices simultaneously writing to gsheet log
 # Version 1.063 - Added nosleep and noupdate arguments to assist in troubleshooting
