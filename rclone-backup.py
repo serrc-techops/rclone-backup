@@ -73,7 +73,7 @@ def get_backup_source(backup_type):
             "/srv/unifi/data/backup/autobackup",      # UniFi Cloud Key Gen1/Gen2 - older firmware
             "/usr/lib/unifi/data/backup/autobackup",  # Alternative UniFi installation
             "/opt/unifi/data/backup/autobackup",      # Custom installations
-            "/home/uosserver/.local/share/containers/storage/volumes/uosserver_var_lib_unifi/_data/backup", # Unifi Network Server (Podman)
+            "/home/uosserver/.local/share/containers/storage/volumes/uosserver_var_lib_unifi/_data/backup/autobackup", # Unifi Network Server (Podman)
         ]
         try:
             for path in unifi_autobackup_paths:
