@@ -1,11 +1,12 @@
 #!/usr/bin/python3
 
-VERSION = '1.065'
+VERSION = '1.066'
 
 # Version 1.062 - Added random sleep up to 20 minutes to prevent multiple devices simultaneously writing to gsheet log
 # Version 1.063 - Added nosleep and noupdate arguments to assist in troubleshooting
 # Version 1.064 - Added timestamp to logging, set log rotation time interval so new log wouldn't be created after script self-update
 # Version 1.065 - Changed dependency installer to pip instead of apt for Google API
+# Version 1.066 - Added new autoupdate path for Unifi Network Server
 
 # Arguments:
 #    --nosleep : skip sleep when script executed
@@ -72,6 +73,7 @@ def get_backup_source(backup_type):
             "/srv/unifi/data/backup/autobackup",      # UniFi Cloud Key Gen1/Gen2 - older firmware
             "/usr/lib/unifi/data/backup/autobackup",  # Alternative UniFi installation
             "/opt/unifi/data/backup/autobackup",      # Custom installations
+            "/home/uosserver/.local/share/containers/storage/volumes/uosserver_var_lib_unifi/_data/backup", # Unifi Network Server (Podman)
         ]
         try:
             for path in unifi_autobackup_paths:
